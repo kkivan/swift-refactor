@@ -15,6 +15,32 @@ final class RemoveABTests: XCTestCase {
         )
     }
 
+    func testLeaveOnExpression_NewLine() {
+        let input = """
+                let paymentModel: Analytics.PaymentModel = toggler.evaluate(
+                    Experiment.someExp,
+                    off: .unknown,
+                    on: true
+                )
+                """
+        assert(
+            input:input,
+            expected: "let paymentModel: Analytics.PaymentModel = true"
+        )
+    }
+
+    func testLeaveOnExpression_NewLine1() {
+        assert(
+            input:
+                """
+                toggler.evaluate(
+                Experiment.someExp,
+                                off: false, on: true)
+                """,
+            expected: "true"
+        )
+    }
+
     func testDoesnChangeAnotherExperiment() {
         assert(
             input: "toggler.evaluate(Experiment.doNotChange, off: false, on: true)",
@@ -30,7 +56,25 @@ final class RemoveABTests: XCTestCase {
         )
     }
 
-    // test context
+    // test context on
+
+    // test context off
+
+    // test remove isOn
+
+    // test remove isOff
+
+    // test remove duplicated test on
+
+    // test remove duplicated test off
+
+    // test on without off case toggler.evaluate(<#T##toggle: Toggle##Toggle#>, on: <#T##Void#>) for on
+
+    // test on without off case toggler.evaluate(<#T##toggle: Toggle##Toggle#>, on: <#T##Void#>) for off
+
+    // test toggler.states = [Experiment.flightsAgency: .on]
+
+    // guard toggler.isOff(Experiment.flightsImproveBF2Analytics) else {
 }
 
 extension RemoveABTests {
