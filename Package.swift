@@ -5,11 +5,15 @@ import PackageDescription
 
 let package = Package(
     name: "swift-refactor",
+    platforms: [.macOS(.v10_15)],
     products: [
-        .executable(name: "swift-refactor", targets: ["swift-refactor"]),
+      .executable(name: "swift-refactor",
+                  targets: ["swift-refactor"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax.git",
+                 .exact("0.50700.1")),
+        .package(url: "https://github.com/apple/swift-format.git",
                  .exact("0.50700.1"))
         ],
     targets: [
@@ -21,6 +25,7 @@ let package = Package(
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxParser", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
+                .product(name: "SwiftFormat", package: "swift-format"),
             ]),
         .testTarget(
             name: "swift-refactorTests",
@@ -29,6 +34,7 @@ let package = Package(
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxParser", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
+                .product(name: "SwiftFormat", package: "swift-format"),
             ]),
     ]
 )

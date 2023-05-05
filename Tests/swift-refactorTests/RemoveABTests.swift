@@ -136,8 +136,10 @@ extension RemoveABTests {
     func assert(input: String, expected: String) {
         do {
             let rootNode: SourceFileSyntax = try SyntaxParser.parse(source: input)
-            let result = sut.visit(rootNode)
-            XCTAssertEqual(expected, result.description)
+            let result = sut.visit(rootNode).as(SourceFileSyntax.self)!
+
+            let expectedAst = try SyntaxParser.parse(source: expected)
+            XCTAssertEqual(expectedAst.formattedDescription, result.formattedDescription)
         } catch {
             XCTFail(error.localizedDescription)
         }

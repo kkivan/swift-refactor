@@ -8,6 +8,16 @@
 import SwiftSyntax
 import SwiftSyntaxParser
 import Foundation
+import SwiftFormat
+
+public extension SourceFileSyntax {
+  var formattedDescription: String {
+    let f = SwiftFormatter(configuration: .init())
+    var out: String = ""
+    try! f.format(syntax: self, assumingFileURL: nil, to: &out)
+    return out
+  }
+}
 
 class RemoveAB: SyntaxRewriter {
     let experimentId: String
