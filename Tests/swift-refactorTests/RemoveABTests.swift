@@ -5,56 +5,105 @@ import SwiftSyntaxParser
 
 final class RemoveABTests: XCTestCase {
 
-    let experimentId = "someExp"
-    lazy var sut = RemoveAB(experimentId: experimentId)
+  let experimentId = "someExp"
+  lazy var sut = RemoveAB(experimentId: experimentId)
 
-    func testLeaveOnExpression() {
-        assert(
-            input: "toggler.evaluate(Experiment.someExp, off: false, on: true)",
-            expected: "true"
-        )
-    }
+  func testLeaveOnExpression() {
+    assert(
+      input: "toggler.evaluate(Experiment.someExp, off: false, on: true)",
+      expected: "true"
+    )
+  }
 
-    func testLeaveOnExpression_NewLine() {
-        let input = """
+    func testRemoveOffExpression_NewLine() {
+      let input = """
                 let paymentModel: Analytics.PaymentModel = toggler.evaluate(
                     Experiment.someExp,
                     off: .unknown,
                     on: true
                 )
                 """
-        assert(
-            input:input,
-            expected: "let paymentModel: Analytics.PaymentModel = true"
-        )
+      assert(
+        input:input,
+        expected: "let paymentModel: Analytics.PaymentModel = true"
+      )
     }
 
-    func testLeaveOnExpression_NewLine1() {
-        assert(
-            input:
+    func testRemoveOffExpression_NewLine1() {
+      assert(
+        input:
                 """
                 toggler.evaluate(
                 Experiment.someExp,
                                 off: false, on: true)
                 """,
-            expected: "true"
-        )
+        expected: "true"
+      )
     }
 
     func testDoesnChangeAnotherExperiment() {
-        assert(
-            input: "toggler.evaluate(Experiment.doNotChange, off: false, on: true)",
-            expected: "toggler.evaluate(Experiment.doNotChange, off: false, on: true)"
-        )
+      assert(
+        input: "toggler.evaluate(Experiment.doNotChange, off: false, on: true)",
+        expected: "toggler.evaluate(Experiment.doNotChange, off: false, on: true)"
+      )
     }
 
-    func testLeaveOffExpression() {
-        setUp(on: false)
-        assert(
-            input: "toggler.evaluate(Experiment.someExp, off: false, on: true)",
-            expected: "false"
-        )
+    func testRemoveOnExpression() {
+      setUp(on: false)
+      assert(
+        input: "toggler.evaluate(Experiment.someExp, off: false, on: true)",
+        expected: "false"
+      )
     }
+
+    func testRemoveOffWithContext() {
+      assert(input:
+        """
+            toggler.evaluate(Experiment.someExp) {
+                $0.off { doThis() }
+                $0.on { doThat() }
+            }
+        """,
+             expected:
+              "doThat()"
+      )
+    }
+
+    func testDoesntRemoveOffWithContext_AnotherExp() {
+      assertNotChanged(
+        input:
+        """
+            toggler.evaluate(Experiment.anotherExp) {
+                $0.off { doThis() }
+                $0.on { doThat() }
+            }
+        """
+      )
+    }
+
+  func testDoesntRemoveOffWithContext_MultipleCodeItems() {
+    assert(
+      input:
+        """
+            dontDelete()
+            toggler.evaluate(Experiment.someExp) {
+                $0.off { doThis() }
+                $0.on { doThat() }
+            }
+        """,
+      expected:"""
+            dontDelete()
+            doThat()
+        """
+    )
+  }
+
+    // precheck -> ternary operator
+    //    toggler.evaluate(Experiment.searchClayUseDomainModel) {
+    //        $0.precheck { self.interactor.bookingCriteria.hotel.domainModel as? PropertySSR != nil }
+    //        $0.off { doThis() }
+    //        $0.on { doThat() }
+    //    }
 
     // test context on
 
@@ -93,4 +142,8 @@ extension RemoveABTests {
             XCTFail(error.localizedDescription)
         }
     }
+
+  func assertNotChanged(input: String) {
+    assert(input: input, expected: input)
+  }
 }
