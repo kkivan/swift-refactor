@@ -1,4 +1,3 @@
-
 import Foundation
 import SwiftSyntax
 import SwiftSyntaxParser
@@ -11,13 +10,13 @@ case "RemoveAB": visitor = RemoveAB(experimentId: "flightsAgency")
 default: fatalError("unsupported tool: \(tool)")
 }
 for filePath in CommandLine.arguments[2...] {
-    let fullPath = URL(string: "file://" + FileManager.default.currentDirectoryPath)!
-        .appendingPathComponent(filePath)
-    let file = try String(contentsOf: fullPath)
+  let fullPath = URL(string: "file://" + FileManager.default.currentDirectoryPath)!
+    .appendingPathComponent(filePath)
+  let file = try String(contentsOf: fullPath)
 
-    let ast = try SyntaxParser.parse(source: file)
+  let ast = try SyntaxParser.parse(source: file)
 
-    let output = visitor.visit(ast)
+  let output = visitor.visit(ast)
 
-    try "\(output)".write(to: fullPath, atomically: false, encoding: .utf8)
+  try "\(output)".write(to: fullPath, atomically: false, encoding: .utf8)
 }

@@ -1,17 +1,17 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Ivan Kvyatkovskiy on 12/09/2022.
 //
 
-import SwiftSyntax
-import SwiftSyntaxParser
 import Foundation
 import SwiftFormat
+import SwiftSyntax
+import SwiftSyntaxParser
 
-public extension SourceFileSyntax {
-  var formattedDescription: String {
+extension SourceFileSyntax {
+  public var formattedDescription: String {
     let f = SwiftFormatter(configuration: .init())
     var out: String = ""
     try! f.format(syntax: self, assumingFileURL: nil, to: &out)
@@ -20,16 +20,18 @@ public extension SourceFileSyntax {
 }
 
 class RemoveAB: SyntaxRewriter {
-    let experimentId: String
-    let on: Bool
+  let experimentId: String
+  let on: Bool
 
   var branch: String { on ? "on" : "off" }
 
-    init(experimentId: String,
-         on: Bool = true) {
-        self.experimentId = "Experiment." + experimentId
-        self.on = on
-    }
+  init(
+    experimentId: String,
+    on: Bool = true
+  ) {
+    self.experimentId = "Experiment." + experimentId
+    self.on = on
+  }
 
   var statements: CodeBlockItemListSyntax? = nil
 
@@ -51,9 +53,11 @@ class RemoveAB: SyntaxRewriter {
             if item.calledExpression
               .description
               .trimmingCharacters(in: .whitespacesAndNewlines)
-              .hasSuffix(".\(branch)") {
+              .hasSuffix(".\(branch)")
+            {
               if let closure = item.trailingClosure {
-                items[index] = SyntaxFactory.makeBlankCodeBlockItem().withItem(super.visit(closure.statements))
+                items[index] = SyntaxFactory.makeBlankCodeBlockItem().withItem(
+                  super.visit(closure.statements))
               }
             }
           }
@@ -63,19 +67,16 @@ class RemoveAB: SyntaxRewriter {
     return super.visit(SyntaxFactory.makeCodeBlockItemList(items))
   }
 
-    override func visit(_ node: FunctionCallExprSyntax) -> ExprSyntax {
-        guard node.argumentList.first?.description.contains(experimentId) == true else {
-            return super.visit(node)
-        }
-        let branch = on ? "on" : "off"
-        for arg in node.argumentList {
-            if arg.label?.description.contains(branch) == true {
-                return arg.expression
-            }
-        }
-        return super.visit(node)
+  override func visit(_ node: FunctionCallExprSyntax) -> ExprSyntax {
+    guard node.argumentList.first?.description.contains(experimentId) == true else {
+      return super.visit(node)
     }
+    let branch = on ? "on" : "off"
+    for arg in node.argumentList {
+      if arg.label?.description.contains(branch) == true {
+        return arg.expression
+      }
+    }
+    return super.visit(node)
+  }
 }
-
-
-
