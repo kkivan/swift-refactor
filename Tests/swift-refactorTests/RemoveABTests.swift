@@ -100,7 +100,8 @@ final class RemoveABTests: XCTestCase {
     )
   }
 
-  // precheck -> ternary operator
+  // precheck in expression -> ternary operator
+  // precheck with context -> if
   //    toggler.evaluate(Experiment.searchClayUseDomainModel) {
   //        $0.precheck { self.interactor.bookingCriteria.hotel.domainModel as? PropertySSR != nil }
   //        $0.off { doThis() }
